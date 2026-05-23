@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-1.1.0-0ea5e9" alt="version" />
+  <img src="https://img.shields.io/badge/version-1.2.0-0ea5e9" alt="version" />
   <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-64748b" alt="platform" />
   <img src="https://img.shields.io/badge/tests-17%2F17-10b981" alt="tests" />
   <img src="https://img.shields.io/badge/build-passing-10b981" alt="build" />
@@ -50,6 +50,7 @@ HydroMind Studio 是一款面向防汛指挥场景的桌面端数字孪生系统
 - **专业优先**：深色指挥舱布局，非装饰性动画，颜色仅传达风险语义
 - **证据透明**：每个风险分数都可拆解为具体驱动因子，知其然更知其所以然
 - **离线可用**：核心功能不依赖网络，本地规则引擎保证演示稳定性
+- **自动更新**：内置 GitHub Release 版本检查，一键跳转下载最新版本
 - **可扩展**：数据服务抽象层支持从演示模式切换到真实水文数据源
 
 ---
@@ -161,7 +162,7 @@ HydroMind Studio 是一款面向防汛指挥场景的桌面端数字孪生系统
 
 ### 操作日志
 
-自动记录 16 种操作类型：语言切换、流域切换、参数调整、预设应用、快照保存/加载/删除、对比开始/清除、文件导入、简报导出/AI生成/复制、JSON 导出、模拟开始/停止、情景重置。
+自动记录 17 种操作类型：语言切换、流域切换、参数调整、预设应用、快照保存/加载/删除/编辑、对比开始/清除、文件导入、简报导出/AI生成/复制、JSON 导出、模拟开始/停止、情景重置、面板打开。
 
 日志面板显示时间戳、操作类型和详情，支持清空，最多保留 100 条，前 50 条持久化到本地存储。
 
@@ -178,17 +179,18 @@ interface DataServiceProvider {
 
 ### 国际化
 
-完整的中英双语支持，覆盖：
+完整的中/英/日/韩四语支持，覆盖：
 
 - 界面标签和按钮（60+ 翻译项）
-- 节点名称（15 个节点均有中英文名）
+- 节点名称（15 个节点均有四语名称）
 - 风险驱动因子标签（6 项）
 - 预警等级（绿/黄/橙/红）
 - 行动名称、影响描述
 - 简报模板和导出文案
 - 操作日志类型标签
+- 预设情景描述
 
-默认语言为中文，可通过顶部栏按钮切换，偏好持久化保存。
+默认语言为中文，可通过顶部栏按钮循环切换，偏好持久化保存。
 
 ---
 
@@ -223,7 +225,7 @@ npm run desktop:dev
 
 # 打包 macOS 安装包
 npm run desktop:dist
-# 输出: release/HydroMind Studio-1.1.0-arm64-mac.zip
+# 输出: release/HydroMind Studio-1.2.0-arm64-mac.zip
 
 # 仅打包不解压
 npm run desktop:pack
@@ -252,7 +254,7 @@ npm run lint
 
 ```bash
 # 1. 解压 zip
-unzip "HydroMind Studio-1.1.0-arm64-mac.zip"
+unzip "HydroMind Studio-1.2.0-arm64-mac.zip"
 
 # 2. 右键 HydroMind Studio.app → 打开
 #    （首次需绕过 Gatekeeper，因应用未参与 Apple 签名计划）
@@ -266,7 +268,7 @@ xattr -cr "HydroMind Studio.app" && open "HydroMind Studio.app"
 ```bash
 npm install
 npm run desktop:dist
-# 输出 NSIS 安装包: release/HydroMind Studio Setup 1.1.0.exe
+# 输出 NSIS 安装包: release/HydroMind Studio Setup 1.2.0.exe
 ```
 
 ### Linux
@@ -274,7 +276,7 @@ npm run desktop:dist
 ```bash
 npm install
 npm run desktop:dist
-# 输出 AppImage: release/HydroMind Studio-1.1.0.AppImage
+# 输出 AppImage: release/HydroMind Studio-1.2.0.AppImage
 ```
 
 ---
@@ -381,7 +383,7 @@ hydromind-studio/
 │   │   ├── briefing/          # BriefingRenderer — Markdown→JSX
 │   │   ├── layout/            # CommandShell, Topbar, ModeRail
 │   │   ├── map/               # BasinMap — SVG 地图渲染引擎
-│   │   ├── panels/            # 6 个功能面板 + AuditLogPanel
+│   │   ├── panels/            # 7 个功能面板 + AboutPanel + AuditLogPanel + ReplayPanel
 │   │   └── ui/                # 7 个通用 UI 组件
 │   ├── domain/                # 纯函数领域模型
 │   │   ├── hydro.ts           # 水文计算、风险评分、简报导出
@@ -392,7 +394,8 @@ hydromind-studio/
 │   ├── services/
 │   │   ├── ai.ts              # AI 简报服务
 │   │   ├── ai.test.ts         # AI 服务单元测试
-│   │   └── data-service.ts    # 数据服务抽象层
+│   │   ├── data-service.ts    # 数据服务抽象层
+│   │   └── version-check.ts   # GitHub Release 版本检查
 │   ├── stores/
 │   │   └── useAppStore.ts     # Zustand 全局状态
 │   ├── hooks/                 # useFlashAnimation, useKeyboardShortcuts
@@ -491,6 +494,14 @@ npm run test -- src/domain/hydro.test.ts  # 指定文件
 
 ## 变更日志
 
+### v1.2.0 (2026-05-24)
+
+- 新增历史回放面板：保存的场景快照支持按时间轴逐帧回放
+- 新增快照预案管理：快照可编辑说明、标签和备注
+- 新增日/韩语言支持（日本語、한국어），覆盖全部界面与节点名称
+- 新增关于面板：展示版本信息、技术栈、GitHub 链接
+- 新增 GitHub Release 版本检查更新功能
+
 ### v1.1.0 (2026-05-23)
 
 - 新增多流域支持（长江下游/珠江三角洲/太湖平原）
@@ -518,8 +529,7 @@ npm run test -- src/domain/hydro.test.ts  # 指定文件
 - [ ] 引入模型服务端和权限体系
 - [ ] Windows 安装包构建与发布
 - [ ] 移动端适配（响应式已有基础）
-- [ ] 历史回放：加载历史情景并逐帧回放
-- [ ] 多语言扩展（日语、韩语）
+- [ ] 内置自动更新下载（Electron autoUpdater）
 
 ---
 
