@@ -1,0 +1,110 @@
+/* ═══════════════════════════════════════════════════════════════
+   HydroMind Studio — Design Tokens v3
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Color Palette ── */
+  --color-bg-base: #070f17;
+  --color-bg-elevated: #0a1420;
+  --color-bg-surface: #0f1c2e;
+  --color-bg-panel: rgba(22, 38, 60, 0.5);
+  --color-bg-panel-hover: rgba(22, 38, 60, 0.6);
+  --color-bg-input: rgba(0, 0, 0, 0.2);
+  --color-bg-card: rgba(255, 255, 255, 0.04);
+  --color-bg-card-hover: rgba(255, 255, 255, 0.08);
+
+  --color-text-primary: #f8fafc;
+  --color-text-secondary: #e8eef4;
+  --color-text-tertiary: #94a3b8;
+  --color-text-muted: #64748b;
+  --color-text-dim: #475569;
+
+  --color-accent-cyan: #22d3ee;
+  --color-accent-sky: #0ea5e9;
+  --color-accent-blue: #38bdf8;
+  --color-accent-teal: #06b6d4;
+
+  --color-risk-red: #ef4444;
+  --color-risk-red-soft: rgba(239, 68, 68, 0.12);
+  --color-risk-red-glow: rgba(239, 68, 68, 0.25);
+  --color-risk-orange: #f59e0b;
+  --color-risk-orange-soft: rgba(245, 158, 11, 0.12);
+  --color-risk-orange-glow: rgba(245, 158, 11, 0.2);
+  --color-risk-yellow: #eab308;
+  --color-risk-yellow-soft: rgba(234, 179, 8, 0.1);
+  --color-risk-yellow-glow: rgba(234, 179, 8, 0.18);
+  --color-risk-green: #10b981;
+  --color-risk-green-soft: rgba(16, 185, 129, 0.1);
+  --color-risk-green-glow: rgba(16, 185, 129, 0.18);
+
+  /* ── Typography ── */
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  --text-xs: 11px;
+  --text-sm: 12px;
+  --text-base: 13px;
+  --text-md: 14px;
+  --text-lg: 18px;
+  --text-xl: 24px;
+  --text-2xl: 28px;
+  --text-3xl: 32px;
+  --text-4xl: 48px;
+  --text-5xl: 64px;
+
+  --weight-normal: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --weight-extrabold: 800;
+
+  /* ── Spacing ── */
+  --space-1: 4px;
+  --space-2: 6px;
+  --space-3: 8px;
+  --space-4: 10px;
+  --space-5: 12px;
+  --space-6: 14px;
+  --space-7: 16px;
+  --space-8: 18px;
+  --space-9: 20px;
+  --space-10: 24px;
+  --space-11: 32px;
+
+  /* ── Border Radius ── */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 12px;
+  --radius-2xl: 14px;
+  --radius-3xl: 16px;
+  --radius-pill: 999px;
+
+  /* ── Shadows ── */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.12);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 6px 24px rgba(0, 0, 0, 0.15);
+  --shadow-xl: 0 8px 32px rgba(0, 0, 0, 0.2);
+  --shadow-2xl: 0 12px 40px rgba(0, 0, 0, 0.25);
+  --shadow-glow-cyan: 0 0 24px rgba(14, 165, 233, 0.4);
+
+  /* ── Borders ── */
+  --border-subtle: rgba(148, 163, 184, 0.08);
+  --border-default: rgba(148, 163, 184, 0.12);
+  --border-hover: rgba(148, 163, 184, 0.18);
+  --border-active: rgba(56, 189, 248, 0.4);
+
+  /* ── Transitions ── */
+  --transition-fast: 0.15s ease;
+  --transition-base: 0.2s ease;
+  --transition-slow: 0.3s ease;
+  --transition-bounce: 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ── Layout ── */
+  --max-width: 1440px;
+  --sidebar-width: 280px;
+  --topbar-height: 64px;
+
+  /* ── Backdrop ── */
+  --backdrop-blur: blur(20px) saturate(1.2);
+  --backdrop-blur-heavy: blur(24px) saturate(1.2);
+}
