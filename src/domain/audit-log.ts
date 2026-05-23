@@ -15,6 +15,7 @@ export type AuditLogType =
   | 'simulation_start'
   | 'simulation_stop'
   | 'scenario_reset'
+  | 'panel_opened'
 
 export type AuditEntry = {
   id: string
@@ -41,6 +42,7 @@ const typeLabelsZh: Record<AuditLogType, string> = {
   simulation_start: '模拟开始',
   simulation_stop: '模拟停止',
   scenario_reset: '重置情景',
+  panel_opened: '打开面板',
 }
 
 const typeLabelsEn: Record<AuditLogType, string> = {
@@ -60,6 +62,7 @@ const typeLabelsEn: Record<AuditLogType, string> = {
   simulation_start: 'Sim start',
   simulation_stop: 'Sim stop',
   scenario_reset: 'Reset',
+  panel_opened: 'Panel',
 }
 
 export function getAuditTypeLabel(type: AuditLogType, language: string): string {

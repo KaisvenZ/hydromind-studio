@@ -1,4 +1,4 @@
-import { Waves, Languages, ShieldAlert } from 'lucide-react'
+import { Waves, Languages, ShieldAlert, Info } from 'lucide-react'
 import { motion } from 'framer-motion'
 import type { BasinId, BasinState, CopyText, Language } from '../../types'
 import { Clock } from '../ui/Clock'
@@ -12,9 +12,10 @@ interface TopbarProps {
   isSimulating: boolean
   onSwitchLanguage: () => void
   onSwitchBasin: (id: BasinId) => void
+  onAbout: () => void
 }
 
-export function Topbar({ language, basinId, state, t, isSimulating, onSwitchLanguage, onSwitchBasin }: TopbarProps) {
+export function Topbar({ language, basinId, state, t, isSimulating, onSwitchLanguage, onSwitchBasin, onAbout }: TopbarProps) {
   return (
     <motion.header
       className="topbar"
@@ -41,6 +42,16 @@ export function Topbar({ language, basinId, state, t, isSimulating, onSwitchLang
         <span className={`run-status ${isSimulating ? 'running' : 'paused'}`}>
           {t.runStatus}: {isSimulating ? t.runStatusLive : t.runStatusReady}
         </span>
+        <motion.button
+          type="button"
+          className="language-button"
+          onClick={onAbout}
+          title={t.about as string}
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.97 }}
+        >
+          <Info size={15} />
+        </motion.button>
         <motion.button
           type="button"
           className="language-button"

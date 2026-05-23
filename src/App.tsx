@@ -18,6 +18,7 @@ import { AiBriefingPanel } from './components/panels/AiBriefingPanel'
 import { DecisionRail } from './components/panels/DecisionRail'
 import { AuditLogPanel } from './components/panels/AuditLogPanel'
 import { ReplayPanel } from './components/panels/ReplayPanel'
+import { AboutPanel } from './components/panels/AboutPanel'
 import { Toast } from './components/ui/Toast'
 
 function App() {
@@ -71,6 +72,7 @@ function App() {
   const t = COPY[language]
   const simRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null)
+  const [showAbout, setShowAbout] = useState(false)
   const selectedNode = useMemo(
     () => state.nodes.find((node) => node.id === selectedNodeId) ?? state.nodes[0] ?? null,
     [state.nodes, selectedNodeId],
@@ -256,6 +258,11 @@ function App() {
     )
   }, [resetScenario, addAuditEntry, showToast, language])
 
+  const handleAbout = useCallback(() => {
+    setShowAbout(true)
+    addAuditEntry('panel_opened', 'about')
+  }, [addAuditEntry])
+
   // Simulation loop
   useEffect(() => {
     if (!isSimulating) return
@@ -293,6 +300,7 @@ function App() {
         isSimulating={isSimulating}
         onSwitchLanguage={switchLanguage}
         onSwitchBasin={switchBasin}
+        onAbout={handleAbout}
         mapPanel={
           <BasinMapPanel
             state={state}
@@ -377,6 +385,12 @@ function App() {
         }
       />
       {toast && <Toast />}
+      {showAbout && (
+        <AboutPanel
+          language={language}
+          onClose={() => setShowAbout(false)}
+        />
+      )}
     </>
   )
 }

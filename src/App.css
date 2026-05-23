@@ -2500,6 +2500,184 @@ p {
   font-weight: var(--weight-bold);
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   About Modal
+   ═══════════════════════════════════════════════════════════════ */
+.about-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  background: rgba(3, 8, 16, 0.72);
+  backdrop-filter: blur(6px);
+}
+
+.about-modal {
+  position: relative;
+  width: min(440px, 92vw);
+  padding: 36px 32px 24px;
+  border-radius: var(--radius-3xl);
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  background: linear-gradient(180deg, #111d22 0%, #0d171b 100%);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
+}
+
+.about-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: #8fa2a8;
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.about-close:hover { color: #e8f7f4; border-color: rgba(148, 163, 184, 0.2); }
+
+.about-hero {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.about-logo {
+  display: inline-grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-2xl);
+  background: linear-gradient(135deg, #13a989, #1f8fb6);
+  color: #fff;
+  margin-bottom: 12px;
+  box-shadow: 0 0 24px rgba(19, 169, 137, 0.24);
+}
+
+.about-hero h1 { font-size: var(--text-xl); margin-bottom: 4px; }
+
+.about-version {
+  color: #5a6a7e;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.about-desc {
+  color: #8fa2a8;
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.about-meta {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border-radius: var(--radius-xl);
+  border: 1px solid rgba(148, 163, 184, 0.08);
+  background: rgba(255, 255, 255, 0.025);
+  margin-bottom: 18px;
+}
+
+.about-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #7f9297;
+  font-size: var(--text-sm);
+}
+
+.about-meta-row a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #4adec0;
+  text-decoration: none;
+}
+
+.about-meta-row a:hover { text-decoration: underline; }
+
+.about-update {
+  display: grid;
+  gap: 10px;
+}
+
+.about-update-btn {
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(19, 169, 137, 0.28);
+  background: rgba(19, 169, 137, 0.1);
+  color: #4adec0;
+  font: inherit;
+  font-size: var(--text-base);
+  font-weight: var(--weight-bold);
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.about-update-btn:hover:not(:disabled) {
+  background: rgba(19, 169, 137, 0.18);
+}
+
+.about-update-btn:disabled { opacity: 0.5; cursor: wait; }
+
+.about-update-result {
+  text-align: center;
+  padding: 8px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.about-update-result.has-update {
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.18);
+}
+
+.update-badge {
+  display: block;
+  color: #fcd34d;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  margin-bottom: 6px;
+}
+
+.update-current {
+  color: #4a5a6e;
+  font-size: var(--text-sm);
+}
+
+.update-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #4adec0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  text-decoration: none;
+}
+
+.update-link:hover { text-decoration: underline; }
+
+.about-footer {
+  text-align: center;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(148, 163, 184, 0.06);
+  color: #3a4a5e;
+  font-size: var(--text-xs);
+}
+
 @keyframes weatherCellDrift {
   0%, 100% { transform: translate(0, 0); opacity: 0.75; }
   50% { transform: translate(1px, -0.8px); opacity: 1; }

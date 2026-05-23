@@ -181,6 +181,11 @@ export type CopyText = {
   planLabel: string
   planNotes: string
   editPlan: string
+  about: string
+  checkUpdate: string
+  updateAvailable: string
+  updateCurrent: string
+  downloadUpdate: string
   driverLabels: Record<string, string>
   alertLevels: Record<string, string>
   nodeTypes: Record<string, string>

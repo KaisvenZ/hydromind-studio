@@ -11,6 +11,7 @@ interface CommandShellProps {
   isSimulating: boolean
   onSwitchLanguage: () => void
   onSwitchBasin: (id: BasinId) => void
+  onAbout: () => void
   mapPanel: ReactNode
   decisionRail: ReactNode
   analysisPanels: ReactNode
@@ -24,6 +25,7 @@ export function CommandShell({
   isSimulating,
   onSwitchLanguage,
   onSwitchBasin,
+  onAbout,
   mapPanel,
   decisionRail,
   analysisPanels,
@@ -38,6 +40,7 @@ export function CommandShell({
         isSimulating={isSimulating}
         onSwitchLanguage={onSwitchLanguage}
         onSwitchBasin={onSwitchBasin}
+        onAbout={onAbout}
       />
       <div className="command-body">
         <ModeRail t={t} />
