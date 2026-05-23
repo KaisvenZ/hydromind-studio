@@ -17,6 +17,7 @@ import { NodeListPanel } from './components/panels/NodeListPanel'
 import { AiBriefingPanel } from './components/panels/AiBriefingPanel'
 import { DecisionRail } from './components/panels/DecisionRail'
 import { AuditLogPanel } from './components/panels/AuditLogPanel'
+import { ReplayPanel } from './components/panels/ReplayPanel'
 import { Toast } from './components/ui/Toast'
 
 function App() {
@@ -50,6 +51,7 @@ function App() {
     setImportMessage,
     setExpandedNode,
     addSnapshot,
+    updateSnapshot,
     deleteSnapshot,
     loadSnapshot,
     setCompareSnapshot,
@@ -78,11 +80,13 @@ function App() {
     [state, compareSnapshot],
   )
 
+  const LANGUAGE_ORDER: Array<typeof language> = ['zh-CN', 'en', 'ja', 'ko']
   const switchLanguage = useCallback(() => {
-    const next = language === 'en' ? 'zh-CN' : 'en'
+    const idx = LANGUAGE_ORDER.indexOf(language)
+    const next = LANGUAGE_ORDER[(idx + 1) % LANGUAGE_ORDER.length]
     setLanguage(next)
     setBriefing('', 'local')
-    addAuditEntry('language_switch', next === 'zh-CN' ? '切换到中文' : 'Switch to English')
+    addAuditEntry('language_switch', next)
   }, [language, setLanguage, setBriefing, addAuditEntry])
 
   const switchBasin = useCallback((id: BasinId) => {
@@ -237,6 +241,12 @@ function App() {
     addAuditEntry('preset_applied', language === 'zh-CN' ? '应用预设情景' : 'Preset applied')
   }, [language, setScenario, addAuditEntry])
 
+  const handleEditSnapshot = useCallback((id: string, description: string) => {
+    updateSnapshot(id, { description })
+    addAuditEntry('snapshot_saved', language === 'zh-CN' ? '编辑预案说明' : 'Edited plan description')
+    showToast(language === 'zh-CN' ? '预案已更新' : 'Plan updated', 'success')
+  }, [updateSnapshot, addAuditEntry, showToast, language])
+
   const handleReset = useCallback(() => {
     resetScenario()
     addAuditEntry('scenario_reset', '')
@@ -355,6 +365,13 @@ function App() {
               language={language}
               t={t}
               onClear={clearAuditLog}
+            />
+            <ReplayPanel
+              snapshots={snapshots}
+              language={language}
+              t={t}
+              onLoadSnapshot={handleLoadSnapshot}
+              onEditSnapshot={handleEditSnapshot}
             />
           </>
         }

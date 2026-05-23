@@ -1,5 +1,5 @@
 export type AlertLevel = 'green' | 'yellow' | 'orange' | 'red'
-export type Language = 'en' | 'zh-CN'
+export type Language = 'en' | 'zh-CN' | 'ja' | 'ko'
 export type BriefingTemplate = 'command-summary' | 'executive-memo' | 'field-checklist'
 
 export type Scenario = {

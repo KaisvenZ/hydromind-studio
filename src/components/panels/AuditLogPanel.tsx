@@ -13,9 +13,10 @@ interface AuditLogPanelProps {
 
 function formatTime(ts: number, language: Language): string {
   const d = new Date(ts)
-  return language === 'zh-CN'
-    ? `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}:${d.getSeconds().toString().padStart(2, '0')}`
-    : d.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })
+  if (language === 'zh-CN' || language === 'ja' || language === 'ko') {
+    return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}:${d.getSeconds().toString().padStart(2, '0')}`
+  }
+  return d.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })
 }
 
 export function AuditLogPanel({ entries, language, t, onClear }: AuditLogPanelProps) {

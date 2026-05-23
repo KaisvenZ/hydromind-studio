@@ -47,6 +47,7 @@ interface AppState {
   setImportMessage: (message: ImportMessage) => void
   setExpandedNode: (id: string | null) => void
   addSnapshot: (name: string) => void
+  updateSnapshot: (id: string, updates: Partial<ScenarioSnapshot>) => void
   deleteSnapshot: (id: string) => void
   loadSnapshot: (snapshot: ScenarioSnapshot) => void
   setCompareSnapshot: (snapshot: ScenarioSnapshot | null) => void
@@ -127,12 +128,18 @@ export const useAppStore = create<AppState>()(
         const newSnapshot: ScenarioSnapshot = {
           id: `snap-${Date.now()}`,
           name,
+          description: '',
           timestamp: Date.now(),
           scenario: { ...scenario },
           state,
         }
         set({ snapshots: [...snapshots, newSnapshot] })
       },
+
+      updateSnapshot: (id, updates) =>
+        set((state) => ({
+          snapshots: state.snapshots.map((s) => (s.id === id ? { ...s, ...updates } : s)),
+        })),
 
       deleteSnapshot: (id) =>
         set((state) => ({

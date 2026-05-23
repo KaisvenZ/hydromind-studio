@@ -62,7 +62,7 @@ const typeLabelsEn: Record<AuditLogType, string> = {
   scenario_reset: 'Reset',
 }
 
-export function getAuditTypeLabel(type: AuditLogType, language: 'en' | 'zh-CN'): string {
+export function getAuditTypeLabel(type: AuditLogType, language: string): string {
   return language === 'zh-CN' ? typeLabelsZh[type] : typeLabelsEn[type]
 }
 

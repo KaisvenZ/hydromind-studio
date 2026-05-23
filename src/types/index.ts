@@ -1,6 +1,7 @@
 export type AlertLevel = 'green' | 'yellow' | 'orange' | 'red'
-export type Language = 'en' | 'zh-CN'
+export type Language = 'en' | 'zh-CN' | 'ja' | 'ko'
 export type BriefingTemplate = 'command-summary' | 'executive-memo' | 'field-checklist'
+export type PlanLabel = 'A' | 'B' | 'C' | 'baseline' | 'extreme' | 'optimized'
 export type { BasinId, BasinDefinition } from '../domain/basin-defs'
 export type { AuditLogType, AuditEntry } from '../domain/audit-log'
 export type { SensorReading, WeatherForecast, BasinTelemetry, DataServiceProvider } from '../services/data-service'
@@ -62,6 +63,8 @@ export type BasinState = {
 export type ScenarioSnapshot = {
   id: string
   name: string
+  description?: string
+  planLabel?: PlanLabel
   timestamp: number
   scenario: Scenario
   state: BasinState
@@ -170,6 +173,14 @@ export type CopyText = {
   clearLog: string
   dataSource: string
   demoMode: string
+  replay: string
+  replayStart: string
+  replayStop: string
+  replayEmpty: string
+  planDescription: string
+  planLabel: string
+  planNotes: string
+  editPlan: string
   driverLabels: Record<string, string>
   alertLevels: Record<string, string>
   nodeTypes: Record<string, string>

@@ -36,11 +36,19 @@ describe('HydroMind Studio shell', () => {
     expect(screen.getByText('AI Dispatch Briefing')).toBeInTheDocument()
   })
 
-  it('switches between English and Simplified Chinese labels', () => {
+  it('switches between English Japanese Korean and Simplified Chinese labels', () => {
     render(<App />)
 
+    // en → ja
     fireEvent.click(screen.getByRole('button', { name: '简体中文' }))
+    expect(screen.getByText('流域デジタルツイン')).toBeInTheDocument()
 
+    // ja → ko
+    fireEvent.click(screen.getByRole('button', { name: '中文' }))
+    expect(screen.getByText('유역 디지털 트윈')).toBeInTheDocument()
+
+    // ko → zh-CN
+    fireEvent.click(screen.getByRole('button', { name: '中文' }))
     expect(screen.getByText('流域数字孪生')).toBeInTheDocument()
     expect(screen.getByLabelText('暴雨强度')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'English' })).toBeInTheDocument()
