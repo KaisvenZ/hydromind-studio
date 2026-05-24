@@ -6,7 +6,7 @@ export type VersionInfo = {
   checkedAt: number
 }
 
-const CURRENT = '1.2.0'
+const CURRENT = '1.3.0'
 const API = 'https://api.github.com/repos/KaisvenZ/hydromind-studio/releases/latest'
 
 function parseTag(tag: string): number[] {
