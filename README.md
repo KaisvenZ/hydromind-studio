@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-1.3.0-0ea5e9" alt="version" />
+  <img src="https://img.shields.io/badge/version-1.3.1-0ea5e9" alt="version" />
   <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-64748b" alt="platform" />
   <img src="https://img.shields.io/badge/tests-17%2F17-10b981" alt="tests" />
   <img src="https://img.shields.io/badge/build-passing-10b981" alt="build" />
@@ -45,7 +45,7 @@
 
 HydroMind Studio 是一款面向防汛指挥场景的桌面端数字孪生系统。它以流域为单元，融合卫星影像、水文模型、情景推演和 AI 研判能力，在统一的指挥舱界面中呈现风险态势、驱动因子、行动建议和调度简报。
 
-v1.3.0 引入 Python/FastAPI 后端服务，支持多角色协同标注、服务端 AI 代理、真实水文数据接入和权限管理，实现从"单机演示工具"到"协同研判工作台"的升级。
+v1.3.1 引入 Python/FastAPI 后端服务，支持多角色协同标注、服务端 AI 代理、真实水文数据接入和权限管理，实现从"单机演示工具"到"协同研判工作台"的升级。
 
 系统设计目标是在有限演示时间内清晰体现"**数据驱动决策 + 专业指挥界面 + 可解释 AI 简报**"的完整闭环，适用于应急管理教学、防汛演练、比赛评审和实际指挥场景的原型验证。
 
@@ -271,11 +271,11 @@ npm run desktop:dev
 
 # 打包 macOS 安装包
 npm run desktop:dist
-# 输出: release/HydroMind Studio-1.3.0-arm64-mac.zip
+# 输出: release/HydroMind Studio-1.3.1-arm64-mac.zip
 
 # 打包 Windows 安装包
 npm run desktop:dist
-# 输出: release/HydroMind Studio Setup 1.3.0.exe
+# 输出: release/HydroMind Studio Setup 1.3.1.exe
 
 # 仅打包不解压
 npm run desktop:pack
@@ -307,7 +307,7 @@ open http://127.0.0.1:8777/docs
 
 ```bash
 # 1. 解压 zip
-unzip "HydroMind Studio-1.3.0-arm64-mac.zip"
+unzip "HydroMind Studio-1.3.1-arm64-mac.zip"
 
 # 2. 右键 HydroMind Studio.app → 打开
 #    （首次需绕过 Gatekeeper，因应用未参与 Apple 签名计划）
@@ -318,14 +318,14 @@ xattr -cr "HydroMind Studio.app" && open "HydroMind Studio.app"
 
 ### Windows
 
-下载 `HydroMind Studio Setup 1.3.0.exe`，双击运行 NSIS 安装向导，支持自定义安装路径和桌面快捷方式。
+下载 `HydroMind Studio Setup 1.3.1.exe`，双击运行 NSIS 安装向导，支持自定义安装路径和桌面快捷方式。
 
 ### Linux
 
 ```bash
 # 下载 AppImage 后
-chmod +x "HydroMind Studio-1.3.0.AppImage"
-./"HydroMind Studio-1.3.0.AppImage"
+chmod +x "HydroMind Studio-1.3.1.AppImage"
+./"HydroMind Studio-1.3.1.AppImage"
 ```
 
 ---
@@ -653,6 +653,12 @@ export OPENAI_API_KEY="sk-..."
 ---
 
 ## 变更日志
+
+### v1.3.1 (2026-05-24)
+
+- 修复 AboutPanel 版本号硬编码 bug，动态读取 CURRENT_VERSION
+- 修复 electron-updater 缺少 publish 配置导致无法检查更新的问题
+- 统一版本号来源为 version-check.ts 导出常量
 
 ### v1.3.0 (2026-05-24)
 

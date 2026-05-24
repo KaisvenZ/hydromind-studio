@@ -6,7 +6,7 @@ export type VersionInfo = {
   checkedAt: number
 }
 
-const CURRENT = '1.3.0'
+export const CURRENT_VERSION = '1.3.1'
 const API = 'https://api.github.com/repos/KaisvenZ/hydromind-studio/releases/latest'
 
 function parseTag(tag: string): number[] {
@@ -30,13 +30,13 @@ export async function checkVersion(): Promise<VersionInfo> {
     const data = (await res.json()) as { tag_name: string; html_url: string }
     const latest = data.tag_name.replace(/^v/, '')
     return {
-      current: CURRENT,
+      current: CURRENT_VERSION,
       latest,
-      hasUpdate: isNewer(latest, CURRENT),
+      hasUpdate: isNewer(latest, CURRENT_VERSION),
       url: data.html_url,
       checkedAt: Date.now(),
     }
   } catch {
-    return { current: CURRENT, latest: CURRENT, hasUpdate: false, url: '', checkedAt: Date.now() }
+    return { current: CURRENT_VERSION, latest: CURRENT_VERSION, hasUpdate: false, url: '', checkedAt: Date.now() }
   }
 }

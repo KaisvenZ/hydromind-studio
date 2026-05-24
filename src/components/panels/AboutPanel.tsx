@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Waves, X, ExternalLink, GitFork, Download, Cpu } from 'lucide-react'
 import type { Language } from '../../types'
-import { checkVersion, type VersionInfo } from '../../services/version-check'
+import { checkVersion, CURRENT_VERSION, type VersionInfo } from '../../services/version-check'
 
 interface AboutPanelProps {
   language: Language
@@ -47,7 +47,7 @@ export function AboutPanel({ language, onClose }: AboutPanelProps) {
               <Waves size={32} />
             </span>
             <h1>HydroMind Studio</h1>
-            <p className="about-version">v1.2.0</p>
+            <p className="about-version">v{CURRENT_VERSION}</p>
           </div>
 
           <div className="about-body">

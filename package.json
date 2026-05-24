@@ -1,7 +1,7 @@
 {
   "name": "hydromind-studio",
   "private": true,
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "A desktop flood-risk digital twin and AI dispatch briefing studio.",
   "type": "module",
   "main": "electron/main.cjs",
@@ -54,6 +54,11 @@
   "build": {
     "appId": "studio.hydromind.desktop",
     "productName": "HydroMind Studio",
+    "publish": {
+      "provider": "github",
+      "owner": "KaisvenZ",
+      "repo": "hydromind-studio"
+    },
     "directories": {
       "output": "release"
     },
