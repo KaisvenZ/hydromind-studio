@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-1.3.1-0ea5e9" alt="version" />
+  <img src="https://img.shields.io/badge/version-1.3.2-0ea5e9" alt="version" />
   <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-64748b" alt="platform" />
   <img src="https://img.shields.io/badge/tests-17%2F17-10b981" alt="tests" />
   <img src="https://img.shields.io/badge/build-passing-10b981" alt="build" />
@@ -246,11 +246,11 @@ npm run desktop:dev
 
 # 打包 macOS 安装包
 npm run desktop:dist
-# 输出: release/HydroMind Studio-1.3.1-arm64-mac.zip
+# 输出: release/HydroMind Studio-1.3.2-arm64-mac.zip
 
 # 打包 Windows 安装包
 npm run desktop:dist
-# 输出: release/HydroMind Studio Setup 1.3.1.exe
+# 输出: release/HydroMind Studio Setup 1.3.2.exe
 
 # 仅打包不解压
 npm run desktop:pack
@@ -279,25 +279,26 @@ npm run lint
 
 ```bash
 # 1. 解压 zip
-unzip "HydroMind Studio-1.3.1-arm64-mac.zip"
+unzip "HydroMind Studio-1.3.2-arm64-mac.zip"
 
-# 2. 右键 HydroMind Studio.app → 打开
-#    （首次需绕过 Gatekeeper，因应用未参与 Apple 签名计划）
+# 2. 移除隔离属性并本地 ad-hoc 签名（Apple Silicon 必须）
+xattr -cr "HydroMind Studio.app"
+codesign --force --deep --sign - "HydroMind Studio.app"
 
-# 或终端运行
-xattr -cr "HydroMind Studio.app" && open "HydroMind Studio.app"
+# 3. 打开应用
+open "HydroMind Studio.app"
 ```
 
 ### Windows
 
-下载 `HydroMind Studio Setup 1.3.1.exe`，双击运行 NSIS 安装向导，支持自定义安装路径和桌面快捷方式。
+下载 `HydroMind Studio Setup 1.3.2.exe`，双击运行 NSIS 安装向导，支持自定义安装路径和桌面快捷方式。
 
 ### Linux
 
 ```bash
 # 下载 AppImage 后
-chmod +x "HydroMind Studio-1.3.1.AppImage"
-./"HydroMind Studio-1.3.1.AppImage"
+chmod +x "HydroMind Studio-1.3.2.AppImage"
+./"HydroMind Studio-1.3.2.AppImage"
 ```
 
 ---
@@ -529,6 +530,10 @@ npm run test -- src/domain/hydro.test.ts  # 指定文件
 ---
 
 ## 变更日志
+
+### v1.3.2 (2026-05-24)
+
+- 修复 macOS 构建无签名导致 Apple Silicon 无法打开应用的问题（identity: null → "-" ad-hoc 签名）
 
 ### v1.3.1 (2026-05-24)
 
