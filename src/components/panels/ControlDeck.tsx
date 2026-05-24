@@ -1,9 +1,23 @@
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { SlidersHorizontal, FileUp, Download, Save, RotateCcw, Play, Pause } from 'lucide-react'
-import type { CopyText, ImportMessage, Scenario, ScenarioSnapshot } from '../../types'
+import type { CopyText, ImportMessage, PlanLabel, Scenario, ScenarioSnapshot } from '../../types'
 import { Card } from '../ui/Card'
 import { Slider } from '../ui/Slider'
 import { Button } from '../ui/Button'
+
+const PLAN_LABELS: { value: PlanLabel; label: Record<string, string> }[] = [
+  { value: 'baseline', label: { 'zh-CN': '基线', en: 'Baseline', ja: 'ベースライン', ko: '기준' } },
+  { value: 'A', label: { 'zh-CN': '方案A', en: 'Plan A', ja: '計画A', ko: '계획A' } },
+  { value: 'B', label: { 'zh-CN': '方案B', en: 'Plan B', ja: '計画B', ko: '계획B' } },
+  { value: 'C', label: { 'zh-CN': '方案C', en: 'Plan C', ja: '計画C', ko: '계획C' } },
+  { value: 'extreme', label: { 'zh-CN': '极端', en: 'Extreme', ja: '極端', ko: '극한' } },
+  { value: 'optimized', label: { 'zh-CN': '优化', en: 'Optimized', ja: '最適', ko: '최적' } },
+]
+
+const LABEL_COLORS: Record<PlanLabel, string> = {
+  baseline: '#64748b', A: '#3b82f6', B: '#10b981', C: '#f59e0b', extreme: '#ef4444', optimized: '#8b5cf6',
+}
 
 interface ControlDeckProps {
   scenario: Scenario
@@ -13,12 +27,13 @@ interface ControlDeckProps {
   importMessage: ImportMessage
   isSimulating: boolean
   simulationSpeed: number
+  language: string
   onUpdateParam: (key: keyof Scenario, value: number) => void
   onPreset: (scenario: Scenario) => void
   onImport: (file: File | undefined) => void
   onExport: () => void
   onExportJson: () => void
-  onSaveSnapshot: () => void
+  onSaveSnapshot: (planLabel?: PlanLabel) => void
   onLoadSnapshot: (snapshot: ScenarioSnapshot) => void
   onDeleteSnapshot: (id: string) => void
   onCompareSnapshot: (snapshot: ScenarioSnapshot | null) => void
@@ -35,6 +50,7 @@ export function ControlDeck({
   importMessage,
   isSimulating,
   simulationSpeed,
+  language,
   onUpdateParam,
   onPreset,
   onImport,
@@ -48,6 +64,7 @@ export function ControlDeck({
   onToggleSimulation,
   onSimulationSpeedChange,
 }: ControlDeckProps) {
+  const [planLabel, setPlanLabel] = useState<PlanLabel>('baseline')
   const formatImportStatus = (message: ImportMessage) => {
     if (message.type === 'demo') return t.demoLoaded
     if (message.type === 'imported') return `${message.filename} ${t.imported}`
@@ -55,6 +72,7 @@ export function ControlDeck({
   }
 
   const presets = t.presets
+  const lang = language as string
 
   return (
     <motion.div
@@ -138,9 +156,23 @@ export function ControlDeck({
           <Button variant="secondary" icon={<Download size={15} />} onClick={onExportJson}>
             {t.exportJson}
           </Button>
-          <Button variant="secondary" icon={<Save size={15} />} onClick={onSaveSnapshot}>
-            {t.saveSnapshot}
-          </Button>
+          <div className="save-snapshot-group">
+            <select
+              className="plan-label-select"
+              value={planLabel}
+              onChange={(e) => setPlanLabel(e.target.value as PlanLabel)}
+              aria-label={t.planLabel as string}
+            >
+              {PLAN_LABELS.map((pl) => (
+                <option key={pl.value} value={pl.value}>
+                  {pl.label[lang] ?? pl.value}
+                </option>
+              ))}
+            </select>
+            <Button variant="secondary" icon={<Save size={15} />} onClick={() => onSaveSnapshot(planLabel)}>
+              {t.saveSnapshot}
+            </Button>
+          </div>
           <Button variant="ghost" icon={<RotateCcw size={15} />} onClick={onReset}>
             {t.resetScenario}
           </Button>
@@ -201,7 +233,14 @@ export function ControlDeck({
                   layout
                 >
                   <button onClick={() => onLoadSnapshot(snap)} className="snapshot-load-btn">
-                    <strong>{snap.name}</strong>
+                    <strong>
+                      {snap.planLabel && snap.planLabel !== 'baseline' && (
+                        <span className="snapshot-plan-badge" style={{ backgroundColor: LABEL_COLORS[snap.planLabel] }}>
+                          {snap.planLabel}
+                        </span>
+                      )}
+                      {snap.name}
+                    </strong>
                     <span>{new Date(snap.timestamp).toLocaleString()}</span>
                   </button>
                   <button

@@ -23,6 +23,12 @@ deliverables/
 # Superpowers session data
 .superpowers/
 
+# Python
+__pycache__/
+*.pyc
+*.db
+.venv/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

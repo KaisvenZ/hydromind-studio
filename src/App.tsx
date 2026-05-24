@@ -7,7 +7,16 @@ import { createAiBriefing } from './services/ai'
 import { BASIN_DEFINITIONS } from './domain/basin-defs'
 import { COPY } from './utils/i18n'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
-import type { BasinId, BasinNode, Scenario, ScenarioSnapshot } from './types'
+import { setDataService, LiveDataService, DemoDataService } from './services/data-service'
+import {
+  login as apiLogin,
+  setAuthToken,
+  fetchAnnotations,
+  createAnnotation,
+  deleteAnnotation,
+  generateServerBriefing,
+} from './services/api-client'
+import type { BasinId, BasinNode, Scenario, ScenarioSnapshot, ServerRole } from './types'
 
 import { CommandShell } from './components/layout/CommandShell'
 import { BasinMapPanel } from './components/panels/BasinMapPanel'
@@ -19,6 +28,8 @@ import { DecisionRail } from './components/panels/DecisionRail'
 import { AuditLogPanel } from './components/panels/AuditLogPanel'
 import { ReplayPanel } from './components/panels/ReplayPanel'
 import { AboutPanel } from './components/panels/AboutPanel'
+import { ComparisonPanel } from './components/panels/ComparisonPanel'
+import { AnnotationPanel } from './components/panels/AnnotationPanel'
 import { Toast } from './components/ui/Toast'
 
 function App() {
@@ -42,6 +53,8 @@ function App() {
     mapLayers,
     auditLog,
     toast,
+    userSession,
+    annotations,
     setLanguage,
     setBasin,
     setScenario,
@@ -65,6 +78,10 @@ function App() {
     clearAuditLog,
     showToast,
     resetScenario,
+    setUserSession,
+    setAnnotations,
+    addAnnotation,
+    removeAnnotation,
   } = store
 
   const basinDef = BASIN_DEFINITIONS[basinId]
@@ -184,12 +201,12 @@ function App() {
     )
   }, [scenario, state, basinId, language, addAuditEntry, showToast])
 
-  const handleSaveSnapshot = useCallback(() => {
+  const handleSaveSnapshot = useCallback((planLabel?: ScenarioSnapshot['planLabel']) => {
     const name = language === 'zh-CN'
       ? `快照 ${new Date().toLocaleString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`
       : `Snapshot ${new Date().toLocaleString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`
-    addSnapshot(name)
-    addAuditEntry('snapshot_saved', name)
+    addSnapshot(name, planLabel)
+    addAuditEntry('snapshot_saved', `${name} [${planLabel ?? 'baseline'}]`)
     showToast(
       language === 'zh-CN' ? '快照已保存' : 'Snapshot saved',
       'success',
@@ -263,6 +280,109 @@ function App() {
     addAuditEntry('panel_opened', 'about')
   }, [addAuditEntry])
 
+  // --- Backend auth & annotations ---
+  const handleLogin = useCallback(async (username: string, password: string) => {
+    try {
+      const result = await apiLogin(username, password)
+      if ('error' in result) {
+        showToast(result.error as string, 'error')
+        return
+      }
+      setAuthToken(result.token)
+      setUserSession({ username: result.username, role: result.role as ServerRole, token: result.token })
+      setDataService(new LiveDataService())
+      addAuditEntry('panel_opened', `Login: ${result.username} (${result.role})`)
+      showToast(
+        language === 'zh-CN' ? `已登录: ${result.username}` : `Logged in: ${result.username}`,
+        'success',
+      )
+      const anns = await fetchAnnotations()
+      setAnnotations(anns.map((a) => ({
+        id: a.id,
+        snapshotId: a.snapshot_id,
+        userId: a.user_id,
+        role: a.role as ServerRole,
+        content: a.content,
+        createdAt: a.created_at,
+      })))
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : 'Login failed', 'error')
+    }
+  }, [language, setUserSession, addAuditEntry, showToast, setAnnotations])
+
+  const handleLogout = useCallback(() => {
+    setDataService(new DemoDataService())
+    setAuthToken('')
+    setUserSession(null)
+    setAnnotations([])
+    addAuditEntry('panel_opened', 'Logout')
+    showToast(
+      language === 'zh-CN' ? '已退出登录' : 'Logged out',
+      'info',
+    )
+  }, [language, setUserSession, setAnnotations, addAuditEntry, showToast])
+
+  const handleAddAnnotation = useCallback(async (snapshotId: string, content: string) => {
+    if (!userSession) return
+    try {
+      const created = await createAnnotation(snapshotId, content)
+      addAnnotation({
+        id: created.id,
+        snapshotId: created.snapshot_id,
+        userId: created.user_id,
+        role: created.role as ServerRole,
+        content: created.content,
+        createdAt: created.created_at,
+      })
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : 'Failed to add annotation', 'error')
+    }
+  }, [userSession, addAnnotation, showToast])
+
+  const handleDeleteAnnotation = useCallback(async (id: number) => {
+    try {
+      await deleteAnnotation(id)
+      removeAnnotation(id)
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : 'Failed to delete annotation', 'error')
+    }
+  }, [removeAnnotation, showToast])
+
+  // Server-side AI briefing
+  const generateServerBriefingHandler = useCallback(async () => {
+    if (!userSession) return
+    setIsGenerating(true)
+    try {
+      const result = await generateServerBriefing(
+        exportBriefingMarkdown(state, language, briefingTemplate),
+        apiKey.trim() ? 'remote' : 'local',
+        briefingTemplate,
+        language,
+      )
+      setBriefing(result.markdown, result.source as 'local' | 'remote')
+      addAuditEntry('ai_generate', `Server: ${result.source}`)
+      showToast(
+        language === 'zh-CN' ? '简报已生成 (服务端)' : 'Briefing generated (server)',
+        'success',
+      )
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : 'Server AI failed, falling back to local', 'error')
+      // fallback to client-side
+      void generateBriefing()
+    } finally {
+      setIsGenerating(false)
+    }
+  }, [userSession, setIsGenerating, state, language, briefingTemplate, apiKey, setBriefing, addAuditEntry, showToast])
+
+  // Choose AI path based on auth status
+  const handleGenerate = useCallback(() => {
+    if (userSession) {
+      void generateServerBriefingHandler()
+    } else {
+      void generateBriefing()
+    }
+  }, [userSession, generateServerBriefingHandler, generateBriefing])
+
   // Simulation loop
   useEffect(() => {
     if (!isSimulating) return
@@ -283,7 +403,7 @@ function App() {
   }, [isSimulating, simulationSpeed, setScenario])
 
   useKeyboardShortcuts({
-    onGenerate: generateBriefing,
+    onGenerate: handleGenerate,
     onExport: downloadReport,
     onReset: handleReset,
     onLanguage: switchLanguage,
@@ -332,6 +452,7 @@ function App() {
               importMessage={importMessage}
               isSimulating={isSimulating}
               simulationSpeed={simulationSpeed}
+              language={language}
               onUpdateParam={updateScenarioParam}
               onPreset={handlePreset}
               onImport={handleImport}
@@ -345,7 +466,19 @@ function App() {
               onToggleSimulation={handleToggleSimulation}
               onSimulationSpeedChange={setSimulationSpeed}
             />
-            <TimelinePanel timeline={state.timeline} t={t} />
+            <ComparisonPanel
+              current={state}
+              baseline={compareSnapshot}
+              language={language}
+              t={t}
+              onClear={() => handleCompareSnapshot(null)}
+            />
+            <TimelinePanel
+              timeline={state.timeline}
+              t={t}
+              compareTimeline={compareSnapshot?.state.timeline ?? null}
+              compareLabel={compareSnapshot?.name}
+            />
             <NodeListPanel
               nodes={state.nodes}
               t={t}
@@ -364,9 +497,21 @@ function App() {
               isGenerating={isGenerating}
               onApiKeyChange={setApiKey}
               onBriefingTemplateChange={setBriefingTemplate}
-              onGenerate={generateBriefing}
+              onGenerate={handleGenerate}
               onCopyBriefing={copyBriefing}
               onExport={downloadReport}
+            />
+            <AnnotationPanel
+              language={language}
+              t={t}
+              snapshots={snapshots}
+              compareSnapshot={compareSnapshot}
+              annotations={annotations}
+              userSession={userSession}
+              onAddAnnotation={handleAddAnnotation}
+              onDeleteAnnotation={handleDeleteAnnotation}
+              onLogin={handleLogin}
+              onLogout={handleLogout}
             />
             <AuditLogPanel
               entries={auditLog}

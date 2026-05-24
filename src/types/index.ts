@@ -77,6 +77,23 @@ export type ImportMessage =
 
 export type ActionStatus = 'planned' | 'staged' | 'sent' | 'verified'
 
+export type ServerRole = 'commander' | 'hydrologist' | 'engineer' | 'observer'
+
+export type UserSession = {
+  username: string
+  role: ServerRole
+  token: string
+} | null
+
+export type RemoteAnnotation = {
+  id: number
+  snapshotId: string
+  userId: number
+  role: ServerRole
+  content: string
+  createdAt: string
+}
+
 export type MapLayers = {
   rain: boolean
   population: boolean
@@ -186,6 +203,12 @@ export type CopyText = {
   updateAvailable: string
   updateCurrent: string
   downloadUpdate: string
+  collaborativeAnnotations: string
+  notLoggedIn: string
+  login: string
+  logout: string
+  addAnnotation: string
+  noAnnotations: string
   driverLabels: Record<string, string>
   alertLevels: Record<string, string>
   nodeTypes: Record<string, string>

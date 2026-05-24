@@ -8,8 +8,10 @@ import type {
   ImportMessage,
   Language,
   MapLayers,
+  RemoteAnnotation,
   Scenario,
   ScenarioSnapshot,
+  UserSession,
 } from '../types'
 import { computeBasinState, DEFAULT_SCENARIO } from '../domain/hydro'
 import { BASIN_DEFINITIONS, DEFAULT_BASIN_ID } from '../domain/basin-defs'
@@ -35,6 +37,9 @@ interface AppState {
   mapLayers: MapLayers
   auditLog: AuditEntry[]
   toast: { message: string; type: 'success' | 'error' | 'info' } | null
+  userSession: UserSession
+  annotations: RemoteAnnotation[]
+  serverUrl: string
 
   // Actions
   setLanguage: (language: Language) => void
@@ -46,7 +51,7 @@ interface AppState {
   setIsGenerating: (value: boolean) => void
   setImportMessage: (message: ImportMessage) => void
   setExpandedNode: (id: string | null) => void
-  addSnapshot: (name: string) => void
+  addSnapshot: (name: string, planLabel?: ScenarioSnapshot['planLabel']) => void
   updateSnapshot: (id: string, updates: Partial<ScenarioSnapshot>) => void
   deleteSnapshot: (id: string) => void
   loadSnapshot: (snapshot: ScenarioSnapshot) => void
@@ -61,6 +66,11 @@ interface AppState {
   showToast: (message: string, type: 'success' | 'error' | 'info') => void
   clearToast: () => void
   resetScenario: () => void
+  setUserSession: (session: UserSession) => void
+  setAnnotations: (annotations: RemoteAnnotation[]) => void
+  addAnnotation: (annotation: RemoteAnnotation) => void
+  removeAnnotation: (id: number) => void
+  setServerUrl: (url: string) => void
 }
 
 function makeEntry(type: AuditLogType, detail: string): AuditEntry {
@@ -88,6 +98,9 @@ export const useAppStore = create<AppState>()(
       mapLayers: { rain: true, population: true },
       auditLog: [],
       toast: null,
+      userSession: null,
+      annotations: [],
+      serverUrl: 'http://127.0.0.1:8777',
 
       setLanguage: (language) =>
         set({ language, briefing: '' }),
@@ -121,7 +134,7 @@ export const useAppStore = create<AppState>()(
       setImportMessage: (importMessage) => set({ importMessage }),
       setExpandedNode: (expandedNode) => set({ expandedNode }),
 
-      addSnapshot: (name) => {
+      addSnapshot: (name, planLabel) => {
         const { scenario, snapshots, basinId } = get()
         const basin = BASIN_DEFINITIONS[basinId]
         const state = computeBasinState(scenario, basin.nodes)
@@ -129,6 +142,7 @@ export const useAppStore = create<AppState>()(
           id: `snap-${Date.now()}`,
           name,
           description: '',
+          planLabel: planLabel ?? 'baseline',
           timestamp: Date.now(),
           scenario: { ...scenario },
           state,
@@ -186,6 +200,12 @@ export const useAppStore = create<AppState>()(
           importMessage: { type: 'demo' },
         })
       },
+
+      setUserSession: (userSession) => set({ userSession }),
+      setAnnotations: (annotations) => set({ annotations }),
+      addAnnotation: (annotation) => set((state) => ({ annotations: [...state.annotations, annotation] })),
+      removeAnnotation: (id) => set((state) => ({ annotations: state.annotations.filter((a) => a.id !== id) })),
+      setServerUrl: (serverUrl) => set({ serverUrl }),
     }),
     {
       name: 'hydromind-storage',
@@ -202,6 +222,7 @@ export const useAppStore = create<AppState>()(
         briefingTemplate: state.briefingTemplate,
         mapLayers: state.mapLayers,
         auditLog: state.auditLog.slice(0, 50),
+        serverUrl: state.serverUrl,
       }),
     },
   ),

@@ -16,6 +16,8 @@ import {
 interface TimelinePanelProps {
   timeline: TimelinePoint[]
   t: CopyText
+  compareTimeline?: TimelinePoint[] | null
+  compareLabel?: string
 }
 
 function CustomTooltip({ active, payload, label, t }: { active?: boolean; payload?: Array<{ value: number; name: string; payload: TimelinePoint }>; label?: string; t: CopyText }) {
@@ -33,8 +35,17 @@ function CustomTooltip({ active, payload, label, t }: { active?: boolean; payloa
   )
 }
 
-export function TimelinePanel({ timeline, t }: TimelinePanelProps) {
+export function TimelinePanel({ timeline, t, compareTimeline, compareLabel }: TimelinePanelProps) {
   const maxRisk = Math.max(...timeline.map((p) => p.risk))
+  const mergedData = compareTimeline
+    ? timeline.map((pt, i) => ({
+        ...pt,
+        riskCmp: compareTimeline[i]?.risk ?? null,
+        inflowCmp: compareTimeline[i]?.inflow ?? null,
+      }))
+    : timeline
+
+  const showComparison = Boolean(compareTimeline && compareTimeline.length > 0)
 
   return (
     <motion.div
@@ -47,13 +58,19 @@ export function TimelinePanel({ timeline, t }: TimelinePanelProps) {
           <BarChart3 size={18} />
           <div>
             <p className="eyebrow">{t.forecastHydrograph}</p>
-            <h2>{t.peakPropagation}</h2>
+            <h2>{showComparison ? `${t.peakPropagation} vs ${compareLabel}` : t.peakPropagation}</h2>
           </div>
+          {showComparison && (
+            <div className="chart-legend">
+              <span className="legend-item"><span className="legend-dot" style={{background:'#ef4444'}} /> {t.timeline.risk} (current)</span>
+              <span className="legend-item"><span className="legend-dot" style={{background:'#f97316'}} /> {t.timeline.risk} ({compareLabel})</span>
+            </div>
+          )}
         </div>
 
         <div className="chart-wrapper">
           <ResponsiveContainer width="100%" height={280}>
-            <AreaChart data={timeline} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+            <AreaChart data={mergedData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
               <defs>
                 <linearGradient id="riskGradient" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="#ef4444" stopOpacity={0.3} />
@@ -63,6 +80,10 @@ export function TimelinePanel({ timeline, t }: TimelinePanelProps) {
                 <linearGradient id="inflowGradient" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="#0ea5e9" stopOpacity={0.4} />
                   <stop offset="100%" stopColor="#0ea5e9" stopOpacity={0.05} />
+                </linearGradient>
+                <linearGradient id="riskCmpGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#f97316" stopOpacity={0.2} />
+                  <stop offset="100%" stopColor="#f97316" stopOpacity={0.02} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.08)" />
@@ -92,6 +113,18 @@ export function TimelinePanel({ timeline, t }: TimelinePanelProps) {
                   position: 'insideTopRight',
                 }}
               />
+              {showComparison && (
+                <Area
+                  type="monotone"
+                  dataKey="riskCmp"
+                  stroke="#f97316"
+                  strokeWidth={1.5}
+                  strokeDasharray="5 3"
+                  fill="url(#riskCmpGradient)"
+                  dot={false}
+                  animationDuration={800}
+                />
+              )}
               <Area
                 type="monotone"
                 dataKey="risk"

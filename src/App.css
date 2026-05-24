@@ -2774,3 +2774,312 @@ p {
     grid-row: auto !important;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   Comparison Panel
+   ═══════════════════════════════════════════════════════════════ */
+.comparison-panel .comparison-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.comparison-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: rgba(148, 163, 184, 0.04);
+  border-radius: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.06);
+}
+
+.comparison-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  min-width: 100px;
+}
+
+.comparison-values {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.comparison-current {
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.comparison-arrow {
+  color: var(--color-text-muted);
+  font-size: 12px;
+}
+
+.comparison-baseline {
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.delta-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-left: 4px;
+}
+
+.delta-up {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+}
+
+.delta-down {
+  background: rgba(16, 185, 129, 0.12);
+  color: #10b981;
+}
+
+.delta-zero {
+  background: rgba(148, 163, 184, 0.08);
+  color: #64748b;
+}
+
+.compare-clear-btn {
+  margin-left: auto;
+  padding: 4px 10px;
+  font-size: 11px;
+  color: var(--color-text-muted);
+  background: rgba(148, 163, 184, 0.08);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.compare-clear-btn:hover {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Annotation Panel
+   ═══════════════════════════════════════════════════════════════ */
+.annotation-panel .login-row {
+  display: flex;
+  gap: 8px;
+  padding: 8px 0;
+}
+
+.login-row input {
+  flex: 1;
+  padding: 6px 10px;
+  font-size: 13px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 6px;
+  color: var(--color-text-primary);
+}
+
+.login-row button {
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--color-accent);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.login-btn {
+  margin-left: auto;
+  padding: 4px 10px;
+  font-size: 11px;
+  color: var(--color-text-muted);
+  background: rgba(148, 163, 184, 0.08);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.login-btn:hover {
+  background: rgba(59, 130, 246, 0.12);
+  color: #3b82f6;
+}
+
+.annotation-snapshot-select {
+  margin-top: 8px;
+}
+
+.annotation-snapshot-select select {
+  width: 100%;
+  padding: 6px 10px;
+  font-size: 13px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 6px;
+  color: var(--color-text-primary);
+}
+
+.annotation-input-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.annotation-input-row input {
+  flex: 1;
+  padding: 6px 10px;
+  font-size: 13px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 6px;
+  color: var(--color-text-primary);
+}
+
+.annotation-input-row button {
+  padding: 6px 10px;
+  background: var(--color-accent);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.annotation-input-row button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.annotation-list {
+  margin-top: 10px;
+  max-height: 260px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.annotation-empty {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  text-align: center;
+  padding: 16px 0;
+  margin: 0;
+}
+
+.annotation-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 8px 10px;
+  background: rgba(148, 163, 184, 0.04);
+  border-radius: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.06);
+}
+
+.annotation-role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 7px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.annotation-content {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.annotation-time {
+  font-size: 10px;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.annotation-delete {
+  padding: 2px 4px;
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.annotation-delete:hover {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Plan Label & Snapshot Badges
+   ═══════════════════════════════════════════════════════════════ */
+.save-snapshot-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.plan-label-select {
+  padding: 5px 8px;
+  font-size: 12px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 6px;
+  color: var(--color-text-primary);
+  cursor: pointer;
+}
+
+.snapshot-plan-badge {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 8px;
+  font-size: 9px;
+  font-weight: 700;
+  color: #fff;
+  margin-right: 6px;
+  vertical-align: middle;
+  text-transform: uppercase;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Chart Legend
+   ═══════════════════════════════════════════════════════════════ */
+.chart-legend {
+  display: flex;
+  gap: 14px;
+  margin-left: auto;
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.legend-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}

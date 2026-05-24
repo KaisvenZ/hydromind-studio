@@ -1,4 +1,5 @@
 import type { BasinId } from '../domain/basin-defs'
+import { fetchTelemetry, type ServerSensorReading, type ServerWeatherForecast } from './api-client'
 
 export type SensorReading = {
   nodeId: string
@@ -62,6 +63,53 @@ function generateDemoTelemetry(basinId: BasinId): BasinTelemetry {
     source: 'demo',
     sensors,
     forecast,
+  }
+}
+
+function mapSensorReading(r: ServerSensorReading): SensorReading {
+  return {
+    nodeId: r.node_id,
+    waterLevel: r.water_level,
+    flowRate: r.flow_rate,
+    timestamp: r.timestamp,
+    unit: r.unit,
+  }
+}
+
+function mapWeatherForecast(f: ServerWeatherForecast): WeatherForecast {
+  return {
+    location: f.location,
+    precipitationMm: f.precipitation_mm,
+    windSpeed: f.wind_speed,
+    pressure: f.pressure,
+    validFrom: f.valid_from,
+    validTo: f.valid_to,
+  }
+}
+
+export class LiveDataService implements DataServiceProvider {
+  private fallback = new DemoDataService()
+
+  async fetchBasinTelemetry(basinId: BasinId): Promise<BasinTelemetry> {
+    try {
+      const data = await fetchTelemetry(basinId)
+      if (data.source === 'live') {
+        return {
+          basinId: data.basin_id as BasinId,
+          fetchedAt: data.fetched_at,
+          source: 'live',
+          sensors: data.sensors.map(mapSensorReading),
+          forecast: data.forecast.map(mapWeatherForecast),
+        }
+      }
+    } catch {
+      // fallback to demo
+    }
+    return this.fallback.fetchBasinTelemetry(basinId)
+  }
+
+  getStatus() {
+    return 'live' as const
   }
 }
 

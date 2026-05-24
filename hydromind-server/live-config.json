@@ -1,0 +1,11 @@
+{
+  "comment": "填入真实水文传感器和气象预报 API 端点。为空时自动回退 DemoDataService。",
+  "endpoints": {
+    "lower-yangtze_sensors": "",
+    "lower-yangtze_forecast": "",
+    "pearl-delta_sensors": "",
+    "pearl-delta_forecast": "",
+    "taihu-plain_sensors": "",
+    "taihu-plain_forecast": ""
+  }
+}
