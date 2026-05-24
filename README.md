@@ -10,11 +10,12 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-1.2.0-0ea5e9" alt="version" />
+  <img src="https://img.shields.io/badge/version-1.3.0-0ea5e9" alt="version" />
   <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-64748b" alt="platform" />
   <img src="https://img.shields.io/badge/tests-17%2F17-10b981" alt="tests" />
   <img src="https://img.shields.io/badge/build-passing-10b981" alt="build" />
   <img src="https://img.shields.io/badge/node-%3E%3D20-10b981" alt="node" />
+  <img src="https://img.shields.io/badge/python-3.11%2B-8b5cf6" alt="python" />
   <img src="https://img.shields.io/badge/license-MIT-f59e0b" alt="license" />
 </p>
 
@@ -31,6 +32,7 @@
 - [技术架构](#技术架构)
 - [项目结构](#项目结构)
 - [开发指南](#开发指南)
+- [后端服务](#后端服务)
 - [数据服务扩展](#数据服务扩展)
 - [键盘快捷键](#键盘快捷键)
 - [变更日志](#变更日志)
@@ -43,6 +45,8 @@
 
 HydroMind Studio 是一款面向防汛指挥场景的桌面端数字孪生系统。它以流域为单元，融合卫星影像、水文模型、情景推演和 AI 研判能力，在统一的指挥舱界面中呈现风险态势、驱动因子、行动建议和调度简报。
 
+v1.3.0 引入 Python/FastAPI 后端服务，支持多角色协同标注、服务端 AI 代理、真实水文数据接入和权限管理，实现从"单机演示工具"到"协同研判工作台"的升级。
+
 系统设计目标是在有限演示时间内清晰体现"**数据驱动决策 + 专业指挥界面 + 可解释 AI 简报**"的完整闭环，适用于应急管理教学、防汛演练、比赛评审和实际指挥场景的原型验证。
 
 ### 设计理念
@@ -50,8 +54,9 @@ HydroMind Studio 是一款面向防汛指挥场景的桌面端数字孪生系统
 - **专业优先**：深色指挥舱布局，非装饰性动画，颜色仅传达风险语义
 - **证据透明**：每个风险分数都可拆解为具体驱动因子，知其然更知其所以然
 - **离线可用**：核心功能不依赖网络，本地规则引擎保证演示稳定性
-- **自动更新**：内置 GitHub Release 版本检查，一键跳转下载最新版本
-- **可扩展**：数据服务抽象层支持从演示模式切换到真实水文数据源
+- **协同研判**：多角色标注和权限体系，模拟真实指挥场景中的团队协作
+- **自动更新**：内置 Electron autoUpdater，启动时自动检查新版本并下载安装
+- **可扩展**：数据服务抽象层 + 后端数据转发，支持从演示模式切换到真实水文数据源
 
 ---
 
@@ -65,11 +70,11 @@ HydroMind Studio 是一款面向防汛指挥场景的桌面端数字孪生系统
 ├────┬──────────────────────────────┬──────────────┤
 │    │                              │  优先行动     │
 │ 模 │    流域数字孪生地图           │  风险驱动     │
-│ 式 │    (卫星底图+河网+节点)       │  场景对比     │
+│ 式 │    (卫星底图+河网+节点)       │  预案对比     │
 │ 栏 │                              │  行动状态     │
 ├────┴──────────────────────────────┴──────────────┤
-│  情景控制台  │  预报过程线  │  节点列表  │ AI简报 │
-│  操作日志   │              │            │        │
+│  情景控制台  │  对比面板  │  过程线  │ AI简报    │
+│  节点列表    │  多角色标注 │ 操作日志 │ 历史回放  │
 └─────────────────────────────────────────────────┘
 ```
 
@@ -136,12 +141,24 @@ HydroMind Studio 是一款面向防汛指挥场景的桌面端数字孪生系统
 
 状态变更实时反映在决策栏和 AI 简报行动列表中。
 
-### 场景快照与对比
+### 预案快照与对比
 
-- 一键保存当前场景（含完整参数和流域状态）
-- 快照列表支持加载、删除
-- 选择基线快照后，决策栏显示差异卡片：风险评分 Δ、库容压力 Δ、峰值时间 Δ、最高节点风险 Δ
-- 对比数据同步显示在 AI 简报的证据条中
+- 一键保存当前场景为预案快照（含完整参数和流域状态）
+- 预案标签系统：基线 / 方案 A / 方案 B / 方案 C / 极端 / 优化，六种标签彩色区分
+- 预案对比面板：选中基线快照后，左右分栏展示当前 vs 基准的核心指标差异
+  - 风险评分 Δ、库容压力 Δ、峰值时间 Δ、最高节点风险 Δ
+  - delta 值绿色（下降/改善）和红色（上升/恶化）色标
+- 时间线叠加对比曲线：对比模式下过程线叠加橙色虚线展示基准风险走势
+- 历史回放：快照按时间轴逐帧自动播放，支持暂停、单步前进/后退
+- 快照列表支持加载、编辑说明、删除
+
+### 多角色协同标注
+
+- 四种预设防汛角色：指挥长、水文分析师、工程调度员、观察员
+- 每个角色有独立的角色颜色（红/蓝/绿/紫）和标注权限
+- 标注绑定到具体预案快照，按时间线展示
+- 指挥长可删除任何人标注，其他角色仅可删除自己的标注
+- 数据持久化到后端 SQLite 数据库，多人登录可查看共享标注
 
 ### AI 调度简报
 
@@ -153,16 +170,17 @@ HydroMind Studio 是一款面向防汛指挥场景的桌面端数字孪生系统
 | 管理备忘录 | 领导汇报 | 态势 + 影响 + 决策需求 + 风险提示 |
 | 现场清单 | 一线队伍 | checkbox 行动清单 + 时序 + 核查要点 |
 
-两种生成模式：
+三种生成模式：
 
 - **本地规则引擎**（默认）：确定性算法，离线可用，毫秒级响应
-- **远程 OpenAI**（可选）：输入 API Key 后切换至 Responses API，GPT-5.1 生成自然语言简报；失败自动降级至本地模式
+- **客户端远程调用**（可选）：输入 OpenAI API Key 后直接调用 Responses API；失败自动降级至本地
+- **服务端 AI 代理**（登录后）：通过后端 `/api/ai/briefing` 代理转发 OpenAI，带审计日志和权限校验
 
 简报支持复制到剪贴板、导出 Markdown 文件。
 
 ### 操作日志
 
-自动记录 17 种操作类型：语言切换、流域切换、参数调整、预设应用、快照保存/加载/删除/编辑、对比开始/清除、文件导入、简报导出/AI生成/复制、JSON 导出、模拟开始/停止、情景重置、面板打开。
+自动记录 18 种操作类型：语言切换、流域切换、参数调整、预设应用、快照保存/加载/删除/编辑、对比开始/清除、文件导入、简报导出/AI生成/复制、JSON 导出、模拟开始/停止、情景重置、面板打开、登录/登出。
 
 日志面板显示时间戳、操作类型和详情，支持清空，最多保留 100 条，前 50 条持久化到本地存储。
 
@@ -175,19 +193,28 @@ interface DataServiceProvider {
 }
 ```
 
-当前使用 `DemoDataService` 生成模拟传感器读数和水文预报。通过 `setDataService()` 可替换为真实数据源（如水文站 API、气象预报服务），无需修改 UI 和业务逻辑层。
+- `DemoDataService`：生成模拟传感器读数和水文预报，离线可用
+- `LiveDataService`：通过后端 `/api/telemetry/:basin_id` 转发真实数据源，登录后自动切换
+- 通过 `setDataService()` 可替换为任意实现，无需修改 UI 和业务逻辑层
+
+### 版本更新
+
+- **Electron autoUpdater**：应用启动时自动检查 GitHub Release 新版本，后台下载完成后提示安装
+- **版本检查面板**：关于页面显示当前版本与最新版本对比，一键跳转下载
 
 ### 国际化
 
 完整的中/英/日/韩四语支持，覆盖：
 
-- 界面标签和按钮（60+ 翻译项）
+- 界面标签和按钮（70+ 翻译项）
 - 节点名称（15 个节点均有四语名称）
 - 风险驱动因子标签（6 项）
 - 预警等级（绿/黄/橙/红）
 - 行动名称、影响描述
+- 预案标签名称
 - 简报模板和导出文案
 - 操作日志类型标签
+- 多角色名称和标注相关文案
 - 预设情景描述
 
 默认语言为中文，可通过顶部栏按钮循环切换，偏好持久化保存。
@@ -200,22 +227,41 @@ interface DataServiceProvider {
 
 - Node.js >= 20
 - npm >= 9
+- Python >= 3.11
 - macOS / Windows / Linux
 
-### 安装运行
+### 一键启动（前端 + 后端）
 
 ```bash
 # 克隆仓库
 git clone https://github.com/KaisvenZ/hydromind-studio.git
 cd hydromind-studio
 
-# 安装依赖
+# 安装前端依赖
 npm install
 
-# 浏览器开发模式（推荐首发体验）
+# 安装后端依赖
+cd hydromind-server
+python3 -m venv .venv
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+cd ..
+
+# 终端 1：启动后端 (http://127.0.0.1:8777)
+cd hydromind-server && source .venv/bin/activate && uvicorn main:app --reload --port 8777
+
+# 终端 2：启动前端 (http://localhost:5173)
 npm run dev
-# 访问 http://localhost:5173
 ```
+
+### 仅前端模式（无需后端）
+
+```bash
+npm install
+npm run dev
+```
+
+不登录时所有功能正常使用 — AI 简报走客户端调用，数据服务使用演示模式。
 
 ### 桌面端模式
 
@@ -225,7 +271,11 @@ npm run desktop:dev
 
 # 打包 macOS 安装包
 npm run desktop:dist
-# 输出: release/HydroMind Studio-1.2.0-arm64-mac.zip
+# 输出: release/HydroMind Studio-1.3.0-arm64-mac.zip
+
+# 打包 Windows 安装包
+npm run desktop:dist
+# 输出: release/HydroMind Studio Setup 1.3.0.exe
 
 # 仅打包不解压
 npm run desktop:pack
@@ -242,6 +292,9 @@ npm run build
 
 # 代码检查
 npm run lint
+
+# 后端 API 文档 (启动后端后访问)
+open http://127.0.0.1:8777/docs
 ```
 
 ---
@@ -254,7 +307,7 @@ npm run lint
 
 ```bash
 # 1. 解压 zip
-unzip "HydroMind Studio-1.2.0-arm64-mac.zip"
+unzip "HydroMind Studio-1.3.0-arm64-mac.zip"
 
 # 2. 右键 HydroMind Studio.app → 打开
 #    （首次需绕过 Gatekeeper，因应用未参与 Apple 签名计划）
@@ -265,18 +318,14 @@ xattr -cr "HydroMind Studio.app" && open "HydroMind Studio.app"
 
 ### Windows
 
-```bash
-npm install
-npm run desktop:dist
-# 输出 NSIS 安装包: release/HydroMind Studio Setup 1.2.0.exe
-```
+下载 `HydroMind Studio Setup 1.3.0.exe`，双击运行 NSIS 安装向导，支持自定义安装路径和桌面快捷方式。
 
 ### Linux
 
 ```bash
-npm install
-npm run desktop:dist
-# 输出 AppImage: release/HydroMind Studio-1.2.0.AppImage
+# 下载 AppImage 后
+chmod +x "HydroMind Studio-1.3.0.AppImage"
+./"HydroMind Studio-1.3.0.AppImage"
 ```
 
 ---
@@ -289,10 +338,25 @@ npm run desktop:dist
 2. **点击地图节点**（如"三角洲泵站"）→ 弹出节点检查器，展示风险、水位、暴露人口
 3. **切换流域** → 顶部栏流域选择器切换至"珠江三角洲"，观察不同流域的风险特征
 4. **调节参数** → 拖动暴雨强度滑块至 88，观察风险分数变化和驱动因子重排
-5. **保存快照** → 点击保存，再加载"台风脉冲"预设，选择快照作为对比基线
-6. **查看差异** → 决策栏显示风险 Δ、库容压力 Δ、峰值时间 Δ
-7. **切换简报模板** → 选择"现场清单"，点击生成，查看 checkbox 格式的行动清单
-8. **导出简报** → 点击导出 Markdown，可用任意 Markdown 编辑器打开
+5. **保存预案** → 选择标签"方案 A"后保存，再加载"台风脉冲"预设并保存为"方案 B"
+6. **对比分析** → 选中方案 A 作为对比基线，查看对比面板 Δ 值和时间线叠加曲线
+7. **多角色标注** → 登录为水文分析师，选择方案 A 添加研判标注；切换到指挥长查看全部标注
+8. **切换简报模板** → 选择"现场清单"，点击生成，查看 checkbox 格式的行动清单
+9. **导出简报** → 点击导出 Markdown，可用任意 Markdown 编辑器打开
+
+### 协同标注流程
+
+1. 启动后端服务：`cd hydromind-server && source .venv/bin/activate && uvicorn main:app --port 8777`
+2. 在标注面板点击"登录"，输入角色账号（默认密码均为 `hydromind`）
+3. 各角色登录后可添加标注、查看他人标注、删除自己的标注
+4. 指挥长角色可删除任何人的标注
+
+| 默认账号 | 角色 | 权限 |
+|----------|------|------|
+| commander | 指挥长 | 全部读写 + 删除所有标注 |
+| hydrologist | 水文分析师 | 读写标注 + 查看数据 |
+| engineer | 工程调度员 | 读写标注 + 查看数据 |
+| observer | 观察员 | 只读标注 |
 
 ### 导入外部场景数据
 
@@ -319,8 +383,8 @@ stormIntensity,reservoirLevel,soilSaturation,gateOpening,forecastHours,pumpReadi
 ### API Key 配置（可选）
 
 1. 在 AI 简报面板输入 OpenAI API Key
-2. 点击生成，系统通过 Responses API 调用远程模型
-3. 若远程请求失败，自动回退至本地规则引擎
+2. 未登录时：直接调用 OpenAI Responses API，失败自动回退本地规则引擎
+3. 已登录时：通过后端服务端代理转发（更安全，API Key 不暴露到前端）
 4. API Key 仅存储在本地，不上传至任何服务器
 
 ---
@@ -328,40 +392,54 @@ stormIntensity,reservoirLevel,soilSaturation,gateOpening,forecastHours,pumpReadi
 ## 技术架构
 
 ```
-┌──────────────────────────────────────────┐
-│              Electron 42                 │
-│         (main.cjs + preload.cjs)          │
-├──────────────────────────────────────────┤
-│              React 19 + Vite 8           │
-│  ┌─────────────┐  ┌───────────────────┐  │
-│  │  Components │  │   Zustand Store   │  │
-│  │  10 panels  │  │  (persist + migrate)│  │
-│  └──────┬──────┘  └────────┬──────────┘  │
-│         │                  │              │
-│  ┌──────┴──────────────────┴──────────┐  │
-│  │           Domain Layer              │  │
-│  │  hydro.ts  compare.ts  basin-defs  │  │
-│  │  audit-log.ts                      │  │
-│  └────────────────┬───────────────────┘  │
-│                   │                      │
-│  ┌────────────────┴───────────────────┐  │
-│  │         Services Layer             │  │
-│  │   ai.ts (OpenAI + local fallback)  │  │
-│  │   data-service.ts (Demo/Live)      │  │
-│  └────────────────────────────────────┘  │
-├──────────────────────────────────────────┤
-│     Recharts  │  SVG  │  Lucide Icons    │
-│     Framer Motion  │  Tailwind-merge     │
-└──────────────────────────────────────────┘
+┌──────────────────────────────────────────────────┐
+│                  Electron 42                     │
+│    (main.cjs + preload.cjs + autoUpdater)        │
+├──────────────────────────────────────────────────┤
+│                  React 19 + Vite 8               │
+│  ┌─────────────┐  ┌───────────────────────────┐  │
+│  │  Components │  │       Zustand Store       │  │
+│  │  12 panels  │  │  (persist + migrate + v2) │  │
+│  └──────┬──────┘  └────────────┬──────────────┘  │
+│         │                      │                  │
+│  ┌──────┴──────────────────────┴──────────────┐  │
+│  │              Domain Layer                   │  │
+│  │   hydro.ts  compare.ts  basin-defs         │  │
+│  │   audit-log.ts                             │  │
+│  └───────────────────┬────────────────────────┘  │
+│                      │                           │
+│  ┌───────────────────┴────────────────────────┐  │
+│  │              Services Layer                 │  │
+│  │   ai.ts (OpenAI + local fallback)          │  │
+│  │   data-service.ts (Demo/Live switch)       │  │
+│  │   api-client.ts (REST to backend)          │  │
+│  │   version-check.ts (GitHub Release API)    │  │
+│  └───────────────────┬────────────────────────┘  │
+│                      │                           │
+├──────────────────────┼───────────────────────────┤
+│     Recharts │ SVG  │  Lucide Icons              │
+│     Framer Motion   │  Tailwind-merge            │
+├──────────────────────────────────────────────────┤
+│              Python/FastAPI Server               │
+│  ┌───────────┐ ┌──────────┐ ┌───────────────┐   │
+│  │   auth.py │ │ annotations │ │ sensor_relay │   │
+│  │   JWT     │ │   CRUD     │ │   forwarding │   │
+│  └───────────┘ └──────────┘ └───────────────┘   │
+│  ┌───────────┐ ┌──────────────────────────────┐  │
+│  │ ai_proxy  │ │      SQLite (hydromind.db)   │  │
+│  │  OpenAI   │ │   users, annotations, audit  │  │
+│  └───────────┘ └──────────────────────────────┘  │
+└──────────────────────────────────────────────────┘
 ```
 
 ### 设计决策
 
 - **无路由**：单页指挥舱，模式栏为结构性锚点，不引入 React Router
-- **无后端**：所有逻辑在客户端执行，本地规则引擎保证离线可用
+- **客户端+后端双层**：前端离线可用（本地规则引擎 + 演示数据），后端提供协同标注、服务端 AI 代理和真实数据接入
 - **领域独立**：`src/domain/` 不依赖 React，纯函数可独立测试
 - **国际化在 UI 层**：领域模型返回语言无关的数据结构，翻译在组件层完成
-- **持久化保守**：仅持久化语言、API Key、最近 20 条快照、简报模板、图层设置、前 50 条操作日志
+- **持久化保守**：仅持久化语言、API Key、最近 20 条快照、简报模板、图层设置、前 50 条操作日志、服务器地址
+- **自动更新**：Electron autoUpdater 在非开发模式下自动检查 GitHub Release 更新
 
 ---
 
@@ -374,8 +452,18 @@ hydromind-studio/
 │   ├── plans/                 # 实施计划
 │   └── specs/                 # 设计规格说明
 ├── electron/                  # Electron 主进程
-│   ├── main.cjs               # 窗口创建、加载策略
+│   ├── main.cjs               # 窗口创建、自动更新、加载策略
 │   └── preload.cjs            # 上下文桥接
+├── hydromind-server/          # Python/FastAPI 后端
+│   ├── main.py                # 服务入口、CORS、路由注册
+│   ├── models.py              # SQLAlchemy 模型 (User, Annotation, AuditEntry)
+│   ├── auth.py                # JWT 认证、角色权限中间件
+│   ├── annotations.py         # 标注 CRUD API
+│   ├── ai_proxy.py            # OpenAI 代理端点
+│   ├── sensor_relay.py        # 水文/气象数据转发端点
+│   ├── live-config.json       # 真实数据端点配置
+│   ├── requirements.txt       # Python 依赖
+│   └── .venv/                 # Python 虚拟环境 (gitignored)
 ├── public/
 │   └── assets/                # 静态资源（卫星底图等）
 ├── src/
@@ -383,8 +471,20 @@ hydromind-studio/
 │   │   ├── briefing/          # BriefingRenderer — Markdown→JSX
 │   │   ├── layout/            # CommandShell, Topbar, ModeRail
 │   │   ├── map/               # BasinMap — SVG 地图渲染引擎
-│   │   ├── panels/            # 7 个功能面板 + AboutPanel + AuditLogPanel + ReplayPanel
-│   │   └── ui/                # 7 个通用 UI 组件
+│   │   ├── panels/            # 12 个功能面板
+│   │   │   ├── ControlDeck.tsx       # 情景控制台 + 预案标签
+│   │   │   ├── TimelinePanel.tsx     # 预报过程线 + 叠加对比
+│   │   │   ├── ComparisonPanel.tsx   # 预案指标对比面板
+│   │   │   ├── AnnotationPanel.tsx   # 多角色协同标注面板
+│   │   │   ├── AiBriefingPanel.tsx   # AI 调度简报
+│   │   │   ├── DecisionRail.tsx      # 风险驱动 + 行动状态
+│   │   │   ├── BasinMapPanel.tsx     # 流域地图
+│   │   │   ├── NodeListPanel.tsx     # 关键节点列表
+│   │   │   ├── AuditLogPanel.tsx     # 操作日志
+│   │   │   ├── ReplayPanel.tsx       # 历史回放
+│   │   │   ├── AboutPanel.tsx        # 关于 + 版本检查
+│   │   │   └── ...
+│   │   └── ui/                # 通用 UI 组件 (Button, Card, Slider, Toast, etc.)
 │   ├── domain/                # 纯函数领域模型
 │   │   ├── hydro.ts           # 水文计算、风险评分、简报导出
 │   │   ├── hydro.test.ts      # 领域模型单元测试
@@ -392,16 +492,17 @@ hydromind-studio/
 │   │   ├── basin-defs.ts      # 流域定义与节点配置
 │   │   └── audit-log.ts       # 操作日志类型定义
 │   ├── services/
-│   │   ├── ai.ts              # AI 简报服务
+│   │   ├── ai.ts              # AI 简报服务 (客户端)
 │   │   ├── ai.test.ts         # AI 服务单元测试
-│   │   ├── data-service.ts    # 数据服务抽象层
+│   │   ├── data-service.ts    # 数据服务抽象层 (Demo/Live)
+│   │   ├── api-client.ts      # 后端 REST 客户端
 │   │   └── version-check.ts   # GitHub Release 版本检查
 │   ├── stores/
 │   │   └── useAppStore.ts     # Zustand 全局状态
 │   ├── hooks/                 # useFlashAnimation, useKeyboardShortcuts
 │   ├── styles/                # tokens.css, animations.css
 │   ├── utils/
-│   │   └── i18n.ts            # 中英双语翻译表
+│   │   └── i18n.ts            # 中英日韩四语翻译表
 │   ├── types/
 │   │   └── index.ts           # TypeScript 类型汇总
 │   ├── test/
@@ -429,8 +530,8 @@ hydromind-studio/
 - TypeScript strict 模式
 - 组件使用函数式声明 + Hooks
 - 领域层纯函数，不依赖 React
-- 新增 i18n key 需同时在 `en` 和 `zh-CN` 中添加
-- 测试覆盖：领域模型、AI 服务、应用集成
+- 新增 i18n key 需在 `en`、`zh-CN`、`ja`、`ko` 四个语言中同步添加
+- 测试覆盖：领域模型、AI 服务、应用集成、打包配置
 
 ### 添加新流域
 
@@ -454,7 +555,24 @@ hydromind-studio/
 
 ### 接入真实数据源
 
-实现 `DataServiceProvider` 接口并注入：
+两种方式：
+
+**方式一：配置后端转发（推荐）**
+
+编辑 `hydromind-server/live-config.json`，填入真实 API 端点：
+
+```json
+{
+  "endpoints": {
+    "lower-yangtze_sensors": "https://api.hydro.gov.cn/basin/lower-yangtze/sensors",
+    "lower-yangtze_forecast": "https://api.hydro.gov.cn/basin/lower-yangtze/forecast"
+  }
+}
+```
+
+前端登录后自动通过 `LiveDataService` → `sensor_relay.py` 拉取真实数据。
+
+**方式二：前端直接实现**
 
 ```typescript
 import { setDataService, type DataServiceProvider } from './services/data-service'
@@ -480,6 +598,48 @@ npm run test -- src/domain/hydro.test.ts  # 指定文件
 
 ---
 
+## 后端服务
+
+### API 文档
+
+启动后端后访问 `http://127.0.0.1:8777/docs` 查看 Swagger UI。
+
+### 端点总览
+
+| 端点 | 方法 | 说明 | 权限 |
+|------|------|------|------|
+| `/api/auth/login` | POST | 登录获取 JWT | 无 |
+| `/api/auth/me` | GET | 获取当前用户信息 | 登录用户 |
+| `/api/annotations` | GET | 获取标注列表 | 登录用户 |
+| `/api/annotations` | POST | 创建标注 | engineer+ |
+| `/api/annotations/:id` | DELETE | 删除标注 | 作者或 commander |
+| `/api/ai/briefing` | POST | AI 研判代理 | hydrologist+ |
+| `/api/telemetry/:basin_id` | GET | 获取遥测数据 | 登录用户 |
+| `/api/status` | GET | 服务健康检查 | 无 |
+
+### 角色权限层级
+
+```
+commander (3) > hydrologist (2) > engineer (1) > observer (0)
+```
+
+- `commander`：全部读写 + 删除所有标注
+- `hydrologist`：读写标注 + 使用 AI 研判
+- `engineer`：读写标注 + 查看数据
+- `observer`：只读
+
+### 配置 AI 代理
+
+后端 AI 代理需要设置环境变量：
+
+```bash
+export OPENAI_API_KEY="sk-..."
+```
+
+未设置时，服务端自动回退至本地规则引擎生成。
+
+---
+
 ## 键盘快捷键
 
 | 快捷键 | 操作 |
@@ -493,6 +653,18 @@ npm run test -- src/domain/hydro.test.ts  # 指定文件
 ---
 
 ## 变更日志
+
+### v1.3.0 (2026-05-24)
+
+- **新增后端服务**：Python/FastAPI + SQLite，提供 JWT 认证、标注 CRUD、AI 代理、传感器数据转发
+- **新增多角色协同标注**：四种预设角色（指挥长/水文分析师/工程调度员/观察员），角色着色，权限分级
+- **新增预案标签系统**：六种预案标签（基线/A/B/C/极端/优化），保存时可选，列表彩色展示
+- **新增预案对比面板**：左右分栏指标对比 + delta 色标（绿降红升）
+- **新增时间线叠加对比**：对比模式下过程线叠加基准风险走势
+- **新增 LiveDataService**：可配置的水文/气象 API 接入，通过后端转发或直连
+- **集成 Electron autoUpdater**：启动时自动检查 GitHub Release 更新并下载安装
+- **移动端适配**：Electron 窗口最小宽度从 1120px 降至 800px
+- **i18n 扩展**：新增标注/登录/协作相关多语言键位（70+ 翻译项）
 
 ### v1.2.0 (2026-05-24)
 
@@ -510,8 +682,6 @@ npm run test -- src/domain/hydro.test.ts  # 指定文件
 - 新增数据服务抽象层（DemoDataService + 扩展接口）
 - 默认语言改为中文
 - 修复风险驱动因子、运行状态、预警等级、节点提示的英文硬编码
-- 修复模式栏文字截断和点击反馈
-- 新增 10 个流域节点中英文名称翻译
 - 完善 Windows NSIS 安装包配置
 - Zustand 持久化版本迁移（v1→v2，强制默认中文）
 
@@ -523,13 +693,12 @@ npm run test -- src/domain/hydro.test.ts  # 指定文件
 
 ## 后续规划
 
-- [ ] 接入真实水文传感器和气象预报 API
-- [ ] 增加多预案管理和预案对比
-- [ ] 多角色协同标注和操作留痕
-- [ ] 引入模型服务端和权限体系
-- [ ] Windows 安装包构建与发布
-- [ ] 移动端适配（响应式已有基础）
-- [ ] 内置自动更新下载（Electron autoUpdater）
+- [ ] 接入真实水文传感器和气象预报 API（架构已就绪，待配置端点）
+- [ ] 预案对比并列视图优化
+- [ ] 移动端/平板端深度适配
+- [ ] WebSocket 实时数据推送
+- [ ] 邮件/企业微信告警通知
+- [ ] 更多流域模板（黄河、淮河、松花江）
 
 ---
 
